@@ -2,7 +2,7 @@
   "name": "jttx",
   "version": "1.0.0",
   "type": "module",
-  "description": "Just In Time Transpile TypeScript Execution (JTTX): Run TypeScript in Node.js CLI",
+  "description": "Just-In-Time TypeScript Transpile Execution (JTTX): Run TypeScript ESM in Node.js CLI",
   "keywords": [
     "cli",
     "runtime",
