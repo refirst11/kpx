@@ -1,7 +1,8 @@
 import { transformSync } from '@swc/core';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname, extname } from 'path';
+import { resolve, dirname, extname, join } from 'path';
 import { LoadHook } from 'module';
+import { pathToFileURL } from 'url';
 
 type LoadTSConfig = null | { paths: Record<string, string[]>; baseUrl: string };
 const extensions = ['.js', '.ts', '.mjs', '.mts', '.jsx', '.tsx'];
@@ -30,35 +31,61 @@ function loadTsConfig(): LoadTSConfig {
 }
 
 function resolveImportPath(importPath: string, tsConfig: LoadTSConfig) {
-  if (!tsConfig) return importPath;
+  if (tsConfig) {
+    const { baseUrl, paths } = tsConfig;
+    if (baseUrl) {
+      const baseDir = resolve(projectRoot, baseUrl);
 
-  const { baseUrl, paths } = tsConfig;
-  if (!baseUrl) return importPath;
+      if (paths) {
+        for (const [alias, targetPaths] of Object.entries(paths)) {
+          const aliasPrefix = alias.replace(/\*$/, '');
+          if (importPath.startsWith(aliasPrefix)) {
+            for (const target of targetPaths) {
+              const resolvedTarget = target.replace(/\*$/, '');
+              const candidatePath = resolve(baseDir, resolvedTarget + importPath.slice(aliasPrefix.length));
+              for (const ext of extensions) {
+                if (existsSync(candidatePath + ext)) {
+                  return candidatePath + ext;
+                }
+              }
 
-  const baseDir = resolve(projectRoot, baseUrl);
-
-  if (paths) {
-    for (const [alias, targetPaths] of Object.entries(paths)) {
-      const aliasPrefix = alias.replace(/\*$/, '');
-      if (importPath.startsWith(aliasPrefix)) {
-        for (const target of targetPaths) {
-          const resolvedTarget = target.replace(/\*$/, '');
-          const candidatePath = resolve(baseDir, resolvedTarget + importPath.slice(aliasPrefix.length));
-          for (const ext of extensions) {
-            if (existsSync(candidatePath + ext)) {
-              return candidatePath + ext;
+              if (existsSync(candidatePath)) {
+                return candidatePath;
+              }
             }
           }
-
-          if (existsSync(candidatePath)) {
-            return candidatePath;
-          }
         }
+      }
+
+      const fromBaseUrlPath = resolve(baseDir, importPath);
+      if (existsSync(fromBaseUrlPath)) {
+        return fromBaseUrlPath;
       }
     }
   }
 
-  return resolve(baseDir, importPath);
+  if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
+    const nodeModulesPath = resolve(projectRoot, 'node_modules', importPath);
+    const indexJsPath = join(nodeModulesPath, 'index.js');
+    const indexMjsPath = join(nodeModulesPath, 'index.mjs');
+
+    if (existsSync(indexJsPath)) {
+      return indexJsPath;
+    } else if (existsSync(indexMjsPath)) {
+      return indexMjsPath;
+    }
+
+    const jsFilePath = `${nodeModulesPath}.js`;
+    const mjsFilePath = `${nodeModulesPath}.mjs`;
+
+    if (existsSync(jsFilePath)) {
+      return jsFilePath;
+    } else if (existsSync(mjsFilePath)) {
+      return mjsFilePath;
+    }
+  }
+
+  return importPath;
 }
 
 function transformer(source: string, ext: string) {
@@ -102,7 +129,8 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
       return '';
     }
 
-    return 'import ' + importClause + ' from ' + resolvedPath + ';';
+    const resolvedPathUrl = pathToFileURL(resolvedPath).href;
+    return `import ${importClause} from '${resolvedPathUrl}';`;
   });
 }
 
