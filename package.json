@@ -1,6 +1,6 @@
 {
   "name": "jttx",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Just-In-Time TypeScript Transpile Execution (JTTX): Run TypeScript ESM in Node.js CLI",
   "keywords": [
@@ -27,7 +27,7 @@
     "build": "rimraf dist && npx tsc"
   },
   "dependencies": {
-    "@swc/core": "^1.11.16"
+    "@swc/core": "^1.11.22"
   },
   "devDependencies": {
     "@types/node": "^22.13.17",
