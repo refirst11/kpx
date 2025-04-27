@@ -113,27 +113,29 @@ function transformer(source: string, ext: string) {
 function resolveImports(code: string, basePath: string, externalImportSet: Set<string>): string {
   const tsConfig = loadTsConfig();
   // dotAll mode allows .*? to match newlines
-  return code.replace(/import\s+(.*?)\s+from\s+['"]([^'"]+)['"]\s*;?/g, (_match, importClause, importPath) => {
-    let resolvedPath = resolveImportPath(importPath, tsConfig, basePath);
+  return code // Remove import lines for image files (svg, png, jpeg, jpg, gif, webp, vue, svelte)
+    .replace(/^\s*import\s+(?:.*?\s+from\s+)?['"][^'"]+\.(?:svg|bmp|ico|gif|png|jpeg|jpg|webp|avif|astro|vue|svelte|css|scss)['"]\s*;?\s*$/gm, '')
+    .replace(/import\s+(.*?)\s+from\s+['"]([^'"]+)['"]\s*;?/g, (_match, importClause, importPath) => {
+      let resolvedPath = resolveImportPath(importPath, tsConfig, basePath);
 
-    if (!extname(resolvedPath)) {
-      for (const ext of extensions) {
-        if (existsSync(resolvedPath + ext)) {
-          resolvedPath += ext;
-          break;
+      if (!extname(resolvedPath)) {
+        for (const ext of extensions) {
+          if (existsSync(resolvedPath + ext)) {
+            resolvedPath += ext;
+            break;
+          }
         }
       }
-    }
 
-    if (!existsSync(resolvedPath)) {
-      const importStatement = `import ${importClause} from '${importPath}';`;
-      externalImportSet.add(importStatement);
-      return '';
-    }
+      if (!existsSync(resolvedPath)) {
+        const importStatement = `import ${importClause} from '${importPath}';`;
+        externalImportSet.add(importStatement);
+        return '';
+      }
 
-    const resolvedPathUrl = pathToFileURL(resolvedPath).href;
-    return `import ${importClause} from '${resolvedPathUrl}';`;
-  });
+      const resolvedPathUrl = pathToFileURL(resolvedPath).href;
+      return `import ${importClause} from '${resolvedPathUrl}';`;
+    });
 }
 
 async function jttx(filePath: string): Promise<string> {
