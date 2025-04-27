@@ -30,7 +30,14 @@ function loadTsConfig(): LoadTSConfig {
   }
 }
 
-function resolveImportPath(importPath: string, tsConfig: LoadTSConfig) {
+function resolveImportPath(importPath: string, tsConfig: LoadTSConfig, basePath?: string) {
+  if (importPath.startsWith('.')) {
+    if (!basePath) {
+      throw new Error('basePath is required for relative imports');
+    }
+    return resolve(dirname(basePath), importPath);
+  }
+
   if (tsConfig) {
     const { baseUrl, paths } = tsConfig;
     if (baseUrl) {
@@ -107,12 +114,7 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
   const tsConfig = loadTsConfig();
   // dotAll mode allows .*? to match newlines
   return code.replace(/import\s+(.*?)\s+from\s+['"]([^'"]+)['"]\s*;?/g, (_match, importClause, importPath) => {
-    let resolvedPath: string;
-    if (!importPath.startsWith('.')) {
-      resolvedPath = resolveImportPath(importPath, tsConfig);
-    } else {
-      resolvedPath = resolve(dirname(basePath), importPath);
-    }
+    let resolvedPath = resolveImportPath(importPath, tsConfig, basePath);
 
     if (!extname(resolvedPath)) {
       for (const ext of extensions) {
