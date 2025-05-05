@@ -1,4 +1,4 @@
-import { transformSync } from '@swc/core';
+import { transformSync, parseSync, printSync } from '@swc/core';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname, extname, join } from 'path';
 import { LoadHook } from 'module';
@@ -112,32 +112,61 @@ function transformer(source: string, ext: string) {
 
 function resolveImports(code: string, basePath: string, externalImportSet: Set<string>): string {
   const tsConfig = loadTsConfig();
-  // dotAll mode allows .*? to match newlines
-  return code // Remove import lines for image files (svg, png, jpeg, jpg, gif, webp, vue, svelte)
-    .replace(/^\s*import\s+(?:.*?\s+from\s+)?['"][^'"]+\.(?:svg|bmp|ico|gif|png|jpeg|jpg|webp|avif|astro|vue|svelte|css|scss)['"]\s*;?\s*$/gm, '')
-    .replace(/import\s+(.*?)\s+from\s+['"]([^'"]+)['"]\s*;?/g, (_match, importClause, importPath) => {
-      let resolvedPath = resolveImportPath(importPath, tsConfig, basePath);
+  const ast = parseSync(code, {
+    syntax: 'typescript',
+    tsx: code.includes('tsx'),
+  });
 
-      if (!extname(resolvedPath)) {
-        for (const ext of extensions) {
-          if (existsSync(resolvedPath + ext)) {
-            resolvedPath += ext;
-            break;
-          }
+  const newBody = ast.body.flatMap(node => {
+    if (node.type !== 'ImportDeclaration') return node;
+
+    const source = node.source.value;
+
+    if (/\.(svg|bmp|ico|gif|png|jpeg|jpg|webp|avif|astro|vue|svelte|css|scss)$/.test(source)) {
+      return [];
+    }
+
+    let resolvedPath = resolveImportPath(source, tsConfig, basePath);
+
+    if (!extname(resolvedPath)) {
+      for (const ext of extensions) {
+        if (existsSync(resolvedPath + ext)) {
+          resolvedPath += ext;
+          break;
         }
       }
+    }
 
-      if (!existsSync(resolvedPath)) {
-        const importStatement = `import ${importClause} from '${importPath}';`;
-        externalImportSet.add(importStatement);
-        return '';
-      }
+    if (!existsSync(resolvedPath)) {
+      externalImportSet.add(
+        printSync({
+          type: 'Module',
+          body: [node],
+          interpreter: '',
+          span: { start: 0, end: 0, ctxt: 0 },
+        }).code.trim()
+      );
+      return [];
+    }
 
-      const resolvedPathUrl = pathToFileURL(resolvedPath).href;
-      return `import ${importClause} from '${resolvedPathUrl}';`;
-    });
+    const fileUrl = pathToFileURL(resolvedPath).href;
+
+    return {
+      ...node,
+      source: {
+        ...node.source,
+        value: fileUrl,
+        raw: JSON.stringify(fileUrl),
+      },
+    };
+  });
+  const newAst = {
+    ...ast,
+    body: newBody,
+  };
+
+  return printSync(newAst).code;
 }
-
 async function jttx(filePath: string): Promise<string> {
   const absoluteFilePath = resolve(filePath);
   if (!absoluteFilePath.startsWith(projectRoot + '/')) {
