@@ -1,26 +1,29 @@
-# JTTX &middot; [![powered by SWC](https://img.shields.io/badge/powered%20by-SWC-blue)](https://swc.rs/)
+# kpx
 
-**Just-In-Time TypeScript Transpile Execution** for ESM with [**@swc/core**](https://swc.rs/docs/usage/core)
+**Key Point Execute**  
+TypeScript Module Loader
 
 ## Installation
 
 ```sh
-npm i -D jttx
+# install as project dependency
+$ npm install --save-dev kpx
+
+# or install globally
+$ npm install --global kpx
 ```
 
 ## Usage
 
-Run a TypeScript file **directly**:
-
 ```sh
-node --import jttx file.ts
+# use as `--require` hook
+$ node --require kpx test.ts
+$ node -r kpx test.ts
+
+# use as `--import` hook
+$ node --import kpx test.ts
 ```
-
-## Concept
-
-Since **jttx** uses **type: module**, execution will be limited to **ESM**.  
-Supported extensions are **.js, .ts, .mjs, .mts, .jsx, .tsx**
 
 ## License
 
-jttx is [MIT licensed](https://github.com/refirst11/jitx/blob/main/LICENSE).
+kpx is [MIT licensed](https://github.com/refirst11/kpx/blob/main/LICENSE).

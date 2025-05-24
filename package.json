@@ -1,40 +1,42 @@
 {
-  "name": "jttx",
-  "version": "1.2.2",
-  "type": "module",
-  "description": "Just-In-Time TypeScript Transpile Execution (JTTX): Run TypeScript ESM in Node.js CLI",
+  "name": "kpx",
+  "version": "0.2.0",
+  "description": "Key Point Execute: TypeScript Module Loader",
   "keywords": [
-    "cli",
-    "runtime",
-    "node",
     "esm",
-    "swc",
-    "zero-config",
+    "cjs",
+    "loader",
     "typescript",
-    "typescript runner"
+    "import hook",
+    "require hook"
   ],
   "author": "Refirst",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/refirst11/jitt.git"
+    "url": "git+https://github.com/refirst11/kpx.git"
   },
   "license": "MIT",
-  "main": "dist/esm-register.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm-register.mjs",
+      "require": "./dist/cjs-register.cjs"
+    },
+    "./dist/index.mjs": "./dist/index.mjs"
+  },
   "files": [
     "dist/"
   ],
   "scripts": {
-    "build": "rimraf dist && npx tsc"
+    "build": "rimraf dist && npx tsc && pnpm minify",
+    "minify": "terser dist/index.mjs -c -o dist/index.mjs && terser dist/index.cjs -c -o dist/index.cjs"
   },
   "dependencies": {
-    "@swc/core": "^1.11.22"
+    "@swc/core": "^1.11.24"
   },
   "devDependencies": {
     "@types/node": "^22.13.17",
     "rimraf": "^6.0.1",
+    "terser": "^5.39.0",
     "typescript": "^5.8.2"
-  },
-  "peerDependencies": {
-    "@types/node": ">=22.13.11"
   }
 }
