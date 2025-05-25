@@ -1,6 +1,6 @@
 # kpx
 
-**Key Point Execute**  
+**Key Process Execute**  
 TypeScript Module Loader
 
 ## Installation

@@ -1,7 +1,7 @@
 {
   "name": "kpx",
-  "version": "0.2.0",
-  "description": "Key Point Execute: TypeScript Module Loader",
+  "version": "0.2.1",
+  "description": "Key Process Execute: TypeScript Module Loader",
   "keywords": [
     "esm",
     "cjs",
