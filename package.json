@@ -31,12 +31,12 @@
     "minify": "terser dist/index.mjs -c -o dist/index.mjs && terser dist/index.cjs -c -o dist/index.cjs"
   },
   "dependencies": {
-    "@swc/core": "^1.11.24"
+    "@swc/core": "^1.13.5"
   },
   "devDependencies": {
-    "@types/node": "^22.13.17",
+    "@types/node": "^22.18.5",
     "rimraf": "^6.0.1",
-    "terser": "^5.39.0",
-    "typescript": "^5.8.2"
+    "terser": "^5.44.0",
+    "typescript": "^5.9.2"
   }
 }
