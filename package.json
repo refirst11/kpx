@@ -27,7 +27,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "rimraf dist && npx tsc && pnpm minify",
+    "build": "rimraf dist && tsc && pnpm minify",
     "minify": "terser dist/index.mjs -c -o dist/index.mjs && terser dist/index.cjs -c -o dist/index.cjs"
   },
   "dependencies": {
