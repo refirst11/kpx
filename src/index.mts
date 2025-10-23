@@ -140,13 +140,6 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
 
 export async function kpx(filePath: string): Promise<string> {
   const absoluteFilePath = normalize(resolve(filePath));
-  const normalizedProjectRoot = normalize(projectRoot);
-
-  const relativePath = relative(normalizedProjectRoot, absoluteFilePath);
-
-  if (relativePath.startsWith('..')) {
-    throw new Error('Invalid path: must use absolute path within project: ' + projectRoot);
-  }
 
   const extMatch = filePath.match(/(\.(?:mjs|mts|js|ts|jsx|tsx))$/);
   if (!extMatch) throw new Error('Unsupported file extension');
