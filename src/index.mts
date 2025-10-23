@@ -139,17 +139,15 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
 }
 
 export async function kpx(filePath: string): Promise<string> {
-  const absoluteFilePath = resolve(filePath);
-
   const extMatch = filePath.match(/(\.(?:mjs|mts|js|ts|jsx|tsx))$/);
   if (!extMatch) throw new Error('Unsupported file extension');
   const ext = extMatch[1];
 
-  const source = readFileSync(absoluteFilePath, 'utf-8');
+  const source = readFileSync(filePath, 'utf-8');
   const transformedCode = ext === '.js' || ext === '.mjs' || ext === 'jsx' ? source : transformer(source, ext);
 
   const externalImportSet: Set<string> = new Set();
-  const resolvedCode = resolveImports(transformedCode, absoluteFilePath, externalImportSet);
+  const resolvedCode = resolveImports(transformedCode, filePath, externalImportSet);
 
   const finalBundle = [...externalImportSet].join('\n') + '\n' + resolvedCode.trim();
   return finalBundle;
