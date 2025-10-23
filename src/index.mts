@@ -1,6 +1,6 @@
 import { transformSync } from '@swc/core';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname, extname, join, normalize, relative } from 'path';
+import { resolve, dirname, extname, join } from 'path';
 import { LoadHook } from 'module';
 import { pathToFileURL } from 'url';
 
@@ -139,7 +139,7 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
 }
 
 export async function kpx(filePath: string): Promise<string> {
-  const absoluteFilePath = normalize(resolve(filePath));
+  const absoluteFilePath = resolve(filePath);
 
   const extMatch = filePath.match(/(\.(?:mjs|mts|js|ts|jsx|tsx))$/);
   if (!extMatch) throw new Error('Unsupported file extension');
