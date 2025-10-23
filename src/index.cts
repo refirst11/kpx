@@ -1,5 +1,3 @@
-import { relative } from 'path';
-
 const { transformSync } = require('@swc/core');
 const { readFileSync, existsSync } = require('fs');
 const { resolve, dirname, extname, normalize } = require('path');
@@ -121,13 +119,6 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
 
 function kpx(filePath: string): string {
   const absoluteFilePath = normalize(resolve(filePath));
-  const normalizedProjectRoot = normalize(projectRoot);
-
-  const relativePath = relative(normalizedProjectRoot, absoluteFilePath);
-
-  if (relativePath.startsWith('..')) {
-    throw new Error('Invalid path: must use absolute path within project: ' + projectRoot);
-  }
 
   const extMatch = filePath.match(/(\.(?:cjs|cts|js|ts|jsx|tsx))$/);
   if (!extMatch) throw new Error('Unsupported file extension');
