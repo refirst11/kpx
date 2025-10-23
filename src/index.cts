@@ -1,6 +1,6 @@
 const { transformSync } = require('@swc/core');
 const { readFileSync, existsSync } = require('fs');
-const { resolve, dirname, extname, normalize } = require('path');
+const { resolve, dirname, extname } = require('path');
 const { Module } = require('module');
 
 type LoadTSConfig = null | { paths: Record<string, string[]>; baseUrl: string };
@@ -118,7 +118,7 @@ function resolveImports(code: string, basePath: string, externalImportSet: Set<s
 }
 
 function kpx(filePath: string): string {
-  const absoluteFilePath = normalize(resolve(filePath));
+  const absoluteFilePath = resolve(filePath);
 
   const extMatch = filePath.match(/(\.(?:cjs|cts|js|ts|jsx|tsx))$/);
   if (!extMatch) throw new Error('Unsupported file extension');
