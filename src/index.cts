@@ -1,6 +1,8 @@
+import { relative } from 'path';
+
 const { transformSync } = require('@swc/core');
 const { readFileSync, existsSync } = require('fs');
-const { resolve, dirname, extname, sep, normalize } = require('path');
+const { resolve, dirname, extname, normalize } = require('path');
 const { Module } = require('module');
 
 type LoadTSConfig = null | { paths: Record<string, string[]>; baseUrl: string };
@@ -121,7 +123,9 @@ function kpx(filePath: string): string {
   const absoluteFilePath = normalize(resolve(filePath));
   const normalizedProjectRoot = normalize(projectRoot);
 
-  if (!absoluteFilePath.startsWith(normalizedProjectRoot + sep)) {
+  const relativePath = relative(normalizedProjectRoot, absoluteFilePath);
+
+  if (relativePath.startsWith('..')) {
     throw new Error('Invalid path: must use absolute path within project: ' + projectRoot);
   }
 
