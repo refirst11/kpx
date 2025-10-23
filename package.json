@@ -1,6 +1,6 @@
 {
   "name": "kpx",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "TypeScript Module Loader: Key Process Execute",
   "keywords": [
     "esm",
