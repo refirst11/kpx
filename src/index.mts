@@ -2,7 +2,7 @@ import { transformSync } from '@swc/core';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname, extname, join } from 'path';
 import { LoadHook } from 'module';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 
 type LoadTSConfig = null | { paths: Record<string, string[]>; baseUrl: string };
 const extensions = ['.mjs', '.mts', '.js', '.ts', '.jsx', '.tsx'];
@@ -155,7 +155,7 @@ export async function kpx(filePath: string): Promise<string> {
 
 export const load: LoadHook = async (url, context, nextLoad) => {
   const fileUrl = new URL(url);
-  const filePath = fileUrl.pathname;
+  const filePath = fileURLToPath(fileUrl);
   const ext = extname(filePath);
 
   if (filePath.includes('node_modules') || !extensions.includes(ext)) {
