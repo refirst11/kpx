@@ -1,6 +1,6 @@
 {
   "name": "kpx",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "TypeScript Module Loader: Key Process Execute",
   "keywords": [
     "esm",
@@ -31,7 +31,7 @@
     "minify": "terser dist/index.mjs -c -o dist/index.mjs && terser dist/index.cjs -c -o dist/index.cjs"
   },
   "dependencies": {
-    "@swc/core": "^1.13.5"
+    "@swc/core": "^1.14.0"
   },
   "devDependencies": {
     "@types/node": "^22.18.5",
