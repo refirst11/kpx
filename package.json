@@ -27,16 +27,14 @@
     "dist/"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc && pnpm minify",
-    "minify": "terser dist/index.mjs -c -o dist/index.mjs && terser dist/index.cjs -c -o dist/index.cjs"
+    "build": "rimraf dist && tsc"
   },
   "dependencies": {
-    "@swc/core": "^1.14.0"
+    "@swc/core": "^1.15.30"
   },
   "devDependencies": {
-    "@types/node": "^22.18.5",
-    "rimraf": "^6.0.1",
-    "terser": "^5.44.0",
-    "typescript": "^5.9.2"
+    "@types/node": "^25.6.0",
+    "rimraf": "^6.1.3",
+    "typescript": "^6.0.3"
   }
 }
